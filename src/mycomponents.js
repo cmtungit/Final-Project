@@ -182,6 +182,10 @@ function ButtonDemo({
   children,
 }) {
   const [fetching, setFetch] = useState(null);
+  const [count, setCount] = useState(0);
+  function handleSearch() {
+    setCount(count + 1);
+  }
   useEffect(() => {
     async function fetchHotelAPI() {
       setFetch(null);
@@ -211,7 +215,7 @@ function ButtonDemo({
     return () => {
       ignore = true;
     };
-  }, [params]);
+  }, [count]);
   const handleSubmit = (e) => {
     e.preventDefault();
     setParams(params);
@@ -222,6 +226,8 @@ function ButtonDemo({
       `adult: ${adult}`,
       `children: ${children}`
     );
+    handleSearch();
+    console.log(count);
   };
   return (
     <Button
