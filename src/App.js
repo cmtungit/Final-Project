@@ -1,10 +1,25 @@
+import { useState } from "react";
 import "./App.css";
-import {
-  Searchfunction,
-} from "./mycomponents";
+import { Searchfunction, Sortfunction } from "./mycomponents";
 
 function App() {
-  return <Searchfunction />;
+  const [hotelData, setHotelData] = useState(null);
+  const [updatedHotelData, setUpdatedHotalData] = useState(null);
+  return (
+    <>
+      <Searchfunction
+        hotelData={hotelData}
+        setHotelData={setHotelData}
+        updatedHotelData={updatedHotelData}
+        setUpdatedHotalData={setUpdatedHotalData}
+      />
+      {/* <Sortfunction
+        hotelData={hotelData}
+        updatedHotelData={updatedHotelData}
+        setUpdatedHotalData={setUpdatedHotalData}
+      /> */}
+    </>
+  );
 }
 
 export default App;
