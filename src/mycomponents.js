@@ -1134,7 +1134,7 @@ function PopoverDemo({
             variant="outline"
             className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
           >
-            Adults: {adult} Children: {children}
+            Adults: {adult} Non-Adults: {children}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-65">
@@ -1176,7 +1176,7 @@ function PopoverDemo({
               </div>
             </div>
             <div className="space-y-2">
-              <h4 className="font-medium leading-none">Children</h4>
+              <h4 className="font-medium leading-none">Non-Adults</h4>
               <p className="text-sm text-muted-foreground">0 to 17</p>
             </div>
             <div className="space-y-2">
@@ -1350,7 +1350,7 @@ export function SearchFunction({
   );
 }
 //completed
-export function SortFunction({hotelData, originalHotelData, setHotelData}) {
+export function SortFunction({ hotelData, originalHotelData, setHotelData }) {
   // props = {
   //   hotelData :{},
   //   originalHotelData: {}
@@ -1377,15 +1377,13 @@ export function SortFunction({hotelData, originalHotelData, setHotelData}) {
   function sortingRating() {
     console.log(hotelData.properties);
     hotelData.properties.sort(function (a, b) {
-      if (a.overall_rating < b.overall_rating)
-        return 1;
-      if (a.overall_rating > b.overall_rating)
-        return -1;
+      if (a.overall_rating < b.overall_rating) return 1;
+      if (a.overall_rating > b.overall_rating) return -1;
       return 0;
     });
     setHotelData(hotelData);
   }
-  console.log(hotelData);
+  // console.log(hotelData);
   return (
     <ToggleGroup type="single">
       <ToggleGroupItem value="a" onClick={handleRelevance}>
@@ -1399,4 +1397,37 @@ export function SortFunction({hotelData, originalHotelData, setHotelData}) {
       </ToggleGroupItem>
     </ToggleGroup>
   );
+}
+
+//WIP
+export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
+  function getAmenitiesList() {
+    const amenitiesList = [
+      ...new Set(
+        hotelData.properties.flatMap((property) => property.amenities)
+      ),
+    ];
+    const amenitiesCounts = [];
+    for (const e of amenitiesList) {
+      const countingAmenities = hotelData.properties.filter((property) =>
+        property.amenities.includes(e)
+      );
+      amenitiesCounts.push({ amenities: e, count: countingAmenities.length });
+    }
+    console.log(amenitiesCounts);
+    function AmenitiesCheckBox() {
+      return (
+        <div className="flex items-center space-x-2">
+          <Checkbox />
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            {amenitiesCounts.amenities} ({amenitiesCounts.count})
+          </label>
+        </div>
+      );
+    }
+    amenitiesCounts.map(() => {
+      return <AmenitiesCheckBox />;
+    });
+  }
+  return <Button onClick={getAmenitiesList}>filter trial</Button>;
 }

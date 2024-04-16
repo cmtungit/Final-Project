@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import { SearchFunction, SortFunction } from "./mycomponents";
+import { SearchFunction, SortFunction, FilterFunction } from "./mycomponents";
 
 function App() {
   const [hotelData, setHotelData] = useState(null);
@@ -14,6 +14,11 @@ function App() {
         setOriginalHotelData={setOriginalHotelData}
       />
       <SortFunction
+        hotelData={hotelData}
+        originalHotelData={originalHotelData}
+        setHotelData={setHotelData}
+      />
+      <FilterFunction
         hotelData={hotelData}
         originalHotelData={originalHotelData}
         setHotelData={setHotelData}
