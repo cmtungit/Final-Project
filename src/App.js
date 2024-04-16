@@ -1,23 +1,23 @@
 import { useState } from "react";
 import "./App.css";
-import { Searchfunction, Sortfunction } from "./mycomponents";
+import { SearchFunction, SortFunction } from "./mycomponents";
 
 function App() {
-  // const [hotelData, setHotelData] = useState(null);
-  // const [originalHotelData, setOriginalHotalData] = useState(null);
+  const [hotelData, setHotelData] = useState(null);
+  const [originalHotelData, setOriginalHotelData] = useState(null);
   return (
     <>
-      <Searchfunction
-        // hotelData={hotelData}
-        // setHotelData={setHotelData}
-        // originalHotelData={originalHotelData}
-        // setOriginalHotalData={setOriginalHotalData}
+      <SearchFunction
+        hotelData={hotelData}
+        setHotelData={setHotelData}
+        originalHotelData={originalHotelData}
+        setOriginalHotelData={setOriginalHotelData}
       />
-      {/* <Sortfunction
+      <SortFunction
         hotelData={hotelData}
         originalHotelData={originalHotelData}
         setHotelData={setHotelData}
-      /> */}
+      />
     </>
   );
 }

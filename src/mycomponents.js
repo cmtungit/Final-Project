@@ -12,6 +12,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import { Checkbox } from "@/components/ui/checkbox";
 import * as React from "react";
 import { addDays, format, setDate } from "date-fns";
 import {
@@ -1100,7 +1101,14 @@ function DatePickerWithRange({ className, date, setDate }) {
     </div>
   );
 }
-function PopoverDemo({ adult, setAdult, children, setChildren, childrenAge, setChildrenAge }) {
+function PopoverDemo({
+  adult,
+  setAdult,
+  children,
+  setChildren,
+  childrenAge,
+  setChildrenAge,
+}) {
   function onAdultClick(adjustment) {
     setAdult(Math.max(0, Math.min(100, adult + adjustment)));
   }
@@ -1114,7 +1122,7 @@ function PopoverDemo({ adult, setAdult, children, setChildren, childrenAge, setC
       childAge.push(age);
     }
     childrenAge = childAge.toString();
-    setChildrenAge(childrenAge)
+    setChildrenAge(childrenAge);
     console.log(childrenAge);
   }
   return (
@@ -1208,7 +1216,7 @@ function PopoverDemo({ adult, setAdult, children, setChildren, childrenAge, setC
     </div>
   );
 }
-function ButtonDemo({
+function SearchButton({
   params,
   setParams,
   value,
@@ -1216,10 +1224,11 @@ function ButtonDemo({
   checkOutDate,
   adult,
   children,
+  hotelData,
   setHotelData,
   setOriginalHotelData,
   originalHotelData,
-  childrenAge
+  childrenAge,
 }) {
   const [count, setCount] = useState(0); // control useeffect
   function handleSearch() {
@@ -1230,6 +1239,7 @@ function ButtonDemo({
   useEffect(() => {
     async function fetchHotelAPI() {
       setHotelData(null);
+      setOriginalHotelData(null);
       const HotelAPIurl =
         "https://serpapi.com/search.json?engine=google_hotels&";
       const response = await fetch(
@@ -1249,11 +1259,12 @@ function ButtonDemo({
       );
       const result = await response.json();
       if (!ignore) {
-        setHotelData(result);
         setOriginalHotelData(result);
+        setHotelData(result);
       }
       console.log(result);
-      console.log(originalHotelData);
+      //console.log(originalHotelData);
+      //console.log(hotelData);
     }
     let ignore = false;
     fetchHotelAPI();
@@ -1286,8 +1297,13 @@ function ButtonDemo({
     </Button>
   );
 }
-
-export function Searchfunction() {
+//completed
+export function SearchFunction({
+  hotelData,
+  setHotelData,
+  originalHotelData,
+  setOriginalHotelData,
+}) {
   const [date, setDate] = React.useState({
     from: new Date(2024, 3, 20),
     to: addDays(new Date(2024, 3, 20), 2),
@@ -1298,9 +1314,10 @@ export function Searchfunction() {
   const [value, setValue] = React.useState("");
   let checkInDate = format(date.from, "y-MM-dd"); // have bugs to fix
   let checkOutDate = format(date.to, "y-MM-dd");
-  const [hotelData, setHotelData] = useState(null);
-  const [originalHotelData, setOriginalHotelData] = useState(null);
-  const [childrenAge, setChildrenAge] = useState('');
+  // const [hotelData, setHotelData] = useState(null);
+  // const [originalHotelData, setOriginalHotelData] = useState(null);
+  const [childrenAge, setChildrenAge] = useState("");
+  // console.log(hotelData, originalHotelData);
   return (
     <>
       <InputDemo params={params} setParams={setParams} />
@@ -1314,7 +1331,7 @@ export function Searchfunction() {
         childrenAge={childrenAge}
         setChildrenAge={setChildrenAge}
       />
-      <ButtonDemo
+      <SearchButton
         // handleSubmit={handleSubmit}
         hotelData={hotelData}
         originalHotelData={originalHotelData}
@@ -1332,48 +1349,54 @@ export function Searchfunction() {
     </>
   );
 }
-// //incompleted
-// export function Sortfunction(
-//   hotelData,
-//   originalHotelData,
-//   setOriginalHotelData
-// ) {
-//   const handleRelevance = (e) => {
-//     console.log(hotelData);
-//   };
-//   return (
-//     <ToggleGroup type="single">
-//       <ToggleGroupItem value="a" onClick={(e) => handleRelevance(e)}>
-//         Relevance
-//       </ToggleGroupItem>
-//       <ToggleGroupItem
-//         value="b"
-//         onClick={result.properties.sort(function (a, b) {
-//           if (
-//             a.rate_per_night.extracted_lowest <
-//             b.rate_per_night.extracted_lowest
-//           )
-//             return -1;
-//           if (
-//             a.rate_per_night.extracted_lowest >
-//             b.rate_per_night.extracted_lowest
-//           )
-//             return 1;
-//           return 0;
-//         })}
-//       >
-//         Price: Lowest to Highest
-//       </ToggleGroupItem>
-//       <ToggleGroupItem
-//         value="c"
-//         onClick={result.properties.sort(function (a, b) {
-//           if (a.overall_rating < b.overall_rating) return 1;
-//           if (a.overall_rating > b.overall_rating) return -1;
-//           return 0;
-//         })}
-//       >
-//         Rating: Highest to Lowest
-//       </ToggleGroupItem>
-//     </ToggleGroup>
-//   );
-// }
+//completed
+export function SortFunction({hotelData, originalHotelData, setHotelData}) {
+  // props = {
+  //   hotelData :{},
+  //   originalHotelData: {}
+  // }
+
+  // const {hotelData, originalHotelData, setHotelData} = props;
+
+  function handleRelevance() {
+    setHotelData(originalHotelData);
+    console.log(hotelData);
+  }
+  function sortingPrice() {
+    console.log(hotelData);
+    console.log(hotelData.properties);
+    hotelData.properties.sort(function (a, b) {
+      if (a.rate_per_night.extracted_lowest < b.rate_per_night.extracted_lowest)
+        return -1;
+      if (a.rate_per_night.extracted_lowest > b.rate_per_night.extracted_lowest)
+        return 1;
+      return 0;
+    });
+    setHotelData(hotelData);
+  }
+  function sortingRating() {
+    console.log(hotelData.properties);
+    hotelData.properties.sort(function (a, b) {
+      if (a.overall_rating < b.overall_rating)
+        return 1;
+      if (a.overall_rating > b.overall_rating)
+        return -1;
+      return 0;
+    });
+    setHotelData(hotelData);
+  }
+  console.log(hotelData);
+  return (
+    <ToggleGroup type="single">
+      <ToggleGroupItem value="a" onClick={handleRelevance}>
+        Relevance
+      </ToggleGroupItem>
+      <ToggleGroupItem value="b" onClick={sortingPrice}>
+        Price: Lowest to Highest
+      </ToggleGroupItem>
+      <ToggleGroupItem value="c" onClick={sortingRating}>
+        Rating: Highest to Lowest
+      </ToggleGroupItem>
+    </ToggleGroup>
+  );
+}
