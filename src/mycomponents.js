@@ -27,12 +27,6 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  hotelData,
-  setHotelData,
-  updatedHotelData,
-  SetUpdatedHotelData,
-} from "./App";
 import { CommandList } from "cmdk";
 
 const countriesList = [
@@ -1006,14 +1000,14 @@ function InputDemo({ params, setParams }) {
         type="text"
         placeholder="Search city, hotel..."
         className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
-        value={params.q}
+        value={params}
         onChange={(e) => setParams(`${e.target.value}`)}
         autoFocus="autoFocus"
       />
     </div>
   );
 }
-function ComboboxDemo({ value, setValue }) {
+function CountryComboBox({ value, setValue }) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -1042,7 +1036,7 @@ function ComboboxDemo({ value, setValue }) {
             {countriesList.map((framework) => (
               <CommandItem
                 key={framework.country_code}
-                value={framework.country_name}
+                value={framework.country_code}
                 onSelect={(currentValue) => {
                   setValue(currentValue === value ? "" : currentValue);
                   setOpen(false);
@@ -1051,7 +1045,7 @@ function ComboboxDemo({ value, setValue }) {
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === framework.country_code
+                    value === framework.country_name
                       ? "opacity-100"
                       : "opacity-0"
                   )}
@@ -1106,12 +1100,22 @@ function DatePickerWithRange({ className, date, setDate }) {
     </div>
   );
 }
-function PopoverDemo({ adult, setAdult, children, setChildren }) {
+function PopoverDemo({ adult, setAdult, children, setChildren, childrenAge, setChildrenAge }) {
   function onAdultClick(adjustment) {
     setAdult(Math.max(0, Math.min(100, adult + adjustment)));
   }
   function onChildrenClick(adjustment) {
     setChildren(Math.max(0, Math.min(100, children + adjustment)));
+    let childAge = [];
+    let childrenAge = "";
+    for (let i = 0; i <= children; i++) {
+      let age = 9;
+      // Math.ceil(Math.random() * 17);
+      childAge.push(age);
+    }
+    childrenAge = childAge.toString();
+    setChildrenAge(childrenAge)
+    console.log(childrenAge);
   }
   return (
     <div className="relative">
@@ -1204,89 +1208,86 @@ function PopoverDemo({ adult, setAdult, children, setChildren }) {
     </div>
   );
 }
-// function ButtonDemo({
-//   params,
-//   setParams,
-//   value,
-//   checkInDate,
-//   checkOutDate,
-//   adult,
-//   children,
-//   setHotelData,
-//   updatedHotelData,
-//   SetUpdatedHotelData,
-// }) {
-//   const [count, setCount] = useState(0);
-//   const childAge = [];
-//   function handleSearch() {
-//     setCount(count + 1);
-//   }
-//   useEffect(() => {
-//     async function fetchHotelAPI() {
-//       setHotelData(null);
-//       const HotelAPIurl =
-//         "https://serpapi.com/search.json?engine=google_hotels&";
-//       const response = await fetch(
-//         HotelAPIurl +
-          // new URLSearchParams({
-          //   q: `${params}`,
-          //   check_in_date: `${checkInDate}`,
-          //   check_out_date: `${checkOutDate}`,
-          //   adults: `${adult}`,
-          //   children: `${children}`,
-          //   children_ages: `${childAge.toString()}`,
-          //   currency: "HKD",
-          //   // api_key:
-          //   //   "fae153abc369e2c25284c39de2b4241751818bab0c79ad3b0bdcaf2b5f8902a7",
-          // })
-//       );
-//       const result = await response.json();
-//       if (!ignore) {
-//         setHotelData(result);
-//         SetUpdatedHotelData(result);
-//       }
-//       console.log(result);
-//     }
-//     let ignore = false;
-//     fetchHotelAPI();
-//     return () => {
-//       ignore = true;
-//     };
-//   }, [count]);
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     setParams(params);
-// for (i=0; i=children; i++) {
-//   childAge.push(Math.ceil(Math.random() * 17))
-//  };
-//     console.log(
-//       params,
-//       checkInDate,
-//       checkOutDate,
-//       `adult: ${adult}`,
-//       `children: ${children}`,
-//       `country: ${value}`
-//     );
-//     handleSearch();
-//     console.log(count);
-//   };
-//   return (
-//     <Button
-//       variant="destructive"
-//       type="button"
-//       onClick={(e) => handleSubmit(e)}
-//     >
-//       Search
-//     </Button>
-//   );
-// }
-
-export function Searchfunction(
-  hotelData,
+function ButtonDemo({
+  params,
+  setParams,
+  value,
+  checkInDate,
+  checkOutDate,
+  adult,
+  children,
   setHotelData,
-  updatedHotelData,
-  SetUpdatedHotelData
-) {
+  setOriginalHotelData,
+  originalHotelData,
+  childrenAge
+}) {
+  const [count, setCount] = useState(0); // control useeffect
+  function handleSearch() {
+    // render search
+    setCount(count + 1);
+  }
+
+  useEffect(() => {
+    async function fetchHotelAPI() {
+      setHotelData(null);
+      const HotelAPIurl =
+        "https://serpapi.com/search.json?engine=google_hotels&";
+      const response = await fetch(
+        HotelAPIurl +
+          new URLSearchParams({
+            q: `${params}`,
+            check_in_date: `${checkInDate}`,
+            check_out_date: `${checkOutDate}`,
+            gl: `${value}`,
+            adults: `${adult}`,
+            children: `${children}`,
+            children_ages: `${childrenAge}`,
+            currency: "HKD",
+            api_key:
+              "fae153abc369e2c25284c39de2b4241751818bab0c79ad3b0bdcaf2b5f8902a7",
+          })
+      );
+      const result = await response.json();
+      if (!ignore) {
+        setHotelData(result);
+        setOriginalHotelData(result);
+      }
+      console.log(result);
+      console.log(originalHotelData);
+    }
+    let ignore = false;
+    fetchHotelAPI();
+    return () => {
+      ignore = true;
+    };
+  }, [count]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setParams(params);
+    console.log(
+      params,
+      checkInDate,
+      checkOutDate,
+      `adult: ${adult}`,
+      `children: ${children}`,
+      `country: ${value}`,
+      childrenAge
+    );
+    handleSearch();
+    // console.log(count);
+  };
+  return (
+    <Button
+      variant="destructive"
+      type="button"
+      onClick={(e) => handleSubmit(e)}
+    >
+      Search
+    </Button>
+  );
+}
+
+export function Searchfunction() {
   const [date, setDate] = React.useState({
     from: new Date(2024, 3, 20),
     to: addDays(new Date(2024, 3, 20), 2),
@@ -1295,24 +1296,29 @@ export function Searchfunction(
   const [children, setChildren] = React.useState(0);
   const [params, setParams] = useState("");
   const [value, setValue] = React.useState("");
-  let checkInDate = format(date.from, "y-MM-dd");
+  let checkInDate = format(date.from, "y-MM-dd"); // have bugs to fix
   let checkOutDate = format(date.to, "y-MM-dd");
+  const [hotelData, setHotelData] = useState(null);
+  const [originalHotelData, setOriginalHotelData] = useState(null);
+  const [childrenAge, setChildrenAge] = useState('');
   return (
     <>
       <InputDemo params={params} setParams={setParams} />
-      <ComboboxDemo value={value} setValue={setValue} />
+      <CountryComboBox value={value} setValue={setValue} />
       <DatePickerWithRange date={date} setDate={setDate} />
       <PopoverDemo
         adult={adult}
         setAdult={setAdult}
         children={children}
         setChildren={setChildren}
+        childrenAge={childrenAge}
+        setChildrenAge={setChildrenAge}
       />
-      {/* <ButtonDemo
+      <ButtonDemo
         // handleSubmit={handleSubmit}
-        // hotelData={hotelData}
-        updatedHotelData={updatedHotelData}
-        SetUpdatedHotelData={SetUpdatedHotelData}
+        hotelData={hotelData}
+        originalHotelData={originalHotelData}
+        setOriginalHotelData={setOriginalHotelData}
         setHotelData={setHotelData}
         params={params}
         setParams={setParams}
@@ -1321,12 +1327,17 @@ export function Searchfunction(
         checkOutDate={checkOutDate}
         adult={adult}
         children={children}
-      /> */}
+        childrenAge={childrenAge}
+      />
     </>
   );
 }
 // //incompleted
-// export function Sortfunction(hotelData, updatedHotelData, SetUpdatedHotelData) {
+// export function Sortfunction(
+//   hotelData,
+//   originalHotelData,
+//   setOriginalHotelData
+// ) {
 //   const handleRelevance = (e) => {
 //     console.log(hotelData);
 //   };
