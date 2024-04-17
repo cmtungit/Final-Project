@@ -1022,9 +1022,9 @@ function CountryComboBox({ value, setValue }) {
         >
           {value
             ? countriesList.find(
-                (framework) => framework.country_code === value
+                (framework) => framework.country_name === value
               )?.country_name
-            : "Default Country : US"}
+            : "Required: conuntries"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -1037,7 +1037,7 @@ function CountryComboBox({ value, setValue }) {
             {countriesList.map((framework) => (
               <CommandItem
                 key={framework.country_code}
-                value={framework.country_code}
+                value={framework.country_name}
                 onSelect={(currentValue) => {
                   setValue(currentValue === value ? "" : currentValue);
                   setOpen(false);
@@ -1113,17 +1113,17 @@ function PopoverDemo({
     setAdult(Math.max(0, Math.min(100, adult + adjustment)));
   }
   function onChildrenClick(adjustment) {
-    setChildren(Math.max(0, Math.min(100, children + adjustment)));
+    const numberOfChildren = children + adjustment;
     let childAge = [];
-    let childrenAge = "";
-    for (let i = 0; i <= children; i++) {
+    let age = "";
+    for (let i = 0; i < numberOfChildren; i++) {
       let age = 9;
       // Math.ceil(Math.random() * 17);
       childAge.push(age);
     }
-    childrenAge = childAge.toString();
-    setChildrenAge(childrenAge);
-    console.log(childrenAge);
+    age = childAge.toString();
+    setChildren(Math.max(0, Math.min(100, numberOfChildren)));
+    setChildrenAge(age);
   }
   return (
     <div className="relative">
@@ -1140,7 +1140,7 @@ function PopoverDemo({
         <PopoverContent className="w-65">
           <div className="flex flex-wrap">
             <div className="space-y-2">
-              <h4 className="font-medium leading-none">Adult</h4>
+              <h4 className="font-medium leading-none">Adults</h4>
               <p className="text-sm text-muted-foreground">18 or above</p>
             </div>
             <div className="space-y-2">
@@ -1232,20 +1232,33 @@ function SearchButton({
   childrenAge,
   handleSearch,
   count,
+  date,
 }) {
   useEffect(() => {
+    console.log(count);
     async function fetchHotelAPI() {
       setHotelData(null);
       setOriginalHotelData(null);
       const HotelAPIurl =
         "https://serpapi.com/search.json?engine=google_hotels&";
+      const country_code = countriesList.find(
+        (a) => a.country_name === value
+      )?.country_code;
       const response = await fetch(
         HotelAPIurl +
           new URLSearchParams({
             q: `${params}`,
-            check_in_date: `${checkInDate}`,
-            check_out_date: `${checkOutDate}`,
-            gl: `${value}`,
+            check_in_date: `${
+              date?.from ? format(date.from, "y-MM-dd") : null
+            }`,
+            check_out_date: `${
+              date?.to == null
+                ? date?.from
+                  ? format(date.from, "y-MM-dd")
+                  : null
+                : format(date.to, "y-MM-dd")
+            }`,
+            gl: `${country_code}`,
             adults: `${adult}`,
             children: `${children}`,
             children_ages: `${childrenAge}`,
@@ -1295,16 +1308,13 @@ export function SearchFunction({
   const [children, setChildren] = React.useState(0);
   const [params, setParams] = useState("");
   const [value, setValue] = React.useState("");
-  let checkInDate = format(date.from, "y-MM-dd"); // have bugs to fix
-  let checkOutDate = format(date.to, "y-MM-dd");
   const [childrenAge, setChildrenAge] = useState("");
+  // console.log(childrenAge);
   const handleSearch = (e) => {
     e.preventDefault();
     setParams(params);
     console.log(
       params,
-      checkInDate,
-      checkOutDate,
       `adult: ${adult}`,
       `children: ${children}`,
       `country: ${value}`,
@@ -1341,11 +1351,10 @@ export function SearchFunction({
         params={params}
         setParams={setParams}
         value={value}
-        checkInDate={checkInDate}
-        checkOutDate={checkOutDate}
         adult={adult}
         children={children}
         childrenAge={childrenAge}
+        date={date}
       />
     </>
   );
@@ -1408,7 +1417,9 @@ export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
     if (hotelData && hotelData.properties && !hotelData.error) {
       const amenitiesList = [
         ...new Set(
-          hotelData.properties.flatMap((property) => property.amenities)
+          hotelData.properties
+            .flatMap((property) => property.amenities)
+            .filter((a) => a !== undefined)
         ),
       ];
       console.log(amenitiesList);
@@ -1419,28 +1430,25 @@ export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
         emptyArray.push({ amenities: e, count: countingAmenities.length });
       }
       setAmenitiesCounts(emptyArray);
-
     }
   }, [hotelData]);
   console.log(amenitiesCounts);
   return (
     <>
-    Filter Amenities
-      {amenitiesCounts.map(
-            (item) => (
-              <div
-                className="flex items-center space-x-2"
-                key={hotelData?.properties?.property_token}
-              >
-                <Checkbox />
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  {item.amenities} ({item.count})
-                </label>
-              </div>
-            )
-          )}
-          <Button>Clear</Button>
-          <Button>Submit</Button>
+      Filter Amenities
+      {amenitiesCounts.map((item) => (
+        <div
+          className="flex items-center space-x-2"
+          key={hotelData?.properties?.property_token}
+        >
+          <Checkbox />
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            {item.amenities} ({item.count})
+          </label>
+        </div>
+      ))}
+      <Button>Clear</Button>
+      <Button>Submit</Button>
     </>
   );
 }
