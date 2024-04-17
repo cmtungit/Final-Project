@@ -1024,7 +1024,7 @@ function CountryComboBox({ value, setValue }) {
             ? countriesList.find(
                 (framework) => framework.country_name === value
               )?.country_name
-            : "Required: conuntries"}
+            : "Required: countries"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -1431,7 +1431,7 @@ export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
       }
       setAmenitiesCounts(emptyArray);
     }
-  }, [hotelData]);
+  }, [originalHotelData]);
   console.log(amenitiesCounts);
   return (
     <>
