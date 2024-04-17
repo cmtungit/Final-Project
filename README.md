@@ -1,1 +1,1 @@
-# Final-Project
+# Hoteru search, sorting & filtering feature

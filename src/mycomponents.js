@@ -1216,6 +1216,7 @@ function PopoverDemo({
     </div>
   );
 }
+
 function SearchButton({
   params,
   setParams,
@@ -1229,13 +1230,9 @@ function SearchButton({
   setOriginalHotelData,
   originalHotelData,
   childrenAge,
+  handleSearch,
+  count,
 }) {
-  const [count, setCount] = useState(0); // control useeffect
-  function handleSearch() {
-    // render search
-    setCount(count + 1);
-  }
-
   useEffect(() => {
     async function fetchHotelAPI() {
       setHotelData(null);
@@ -1272,26 +1269,12 @@ function SearchButton({
       ignore = true;
     };
   }, [count]);
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setParams(params);
-    console.log(
-      params,
-      checkInDate,
-      checkOutDate,
-      `adult: ${adult}`,
-      `children: ${children}`,
-      `country: ${value}`,
-      childrenAge
-    );
-    handleSearch();
-    // console.log(count);
-  };
+
   return (
     <Button
       variant="destructive"
       type="button"
-      onClick={(e) => handleSubmit(e)}
+      onClick={(e) => handleSearch(e)}
     >
       Search
     </Button>
@@ -1314,10 +1297,27 @@ export function SearchFunction({
   const [value, setValue] = React.useState("");
   let checkInDate = format(date.from, "y-MM-dd"); // have bugs to fix
   let checkOutDate = format(date.to, "y-MM-dd");
-  // const [hotelData, setHotelData] = useState(null);
-  // const [originalHotelData, setOriginalHotelData] = useState(null);
   const [childrenAge, setChildrenAge] = useState("");
-  // console.log(hotelData, originalHotelData);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setParams(params);
+    console.log(
+      params,
+      checkInDate,
+      checkOutDate,
+      `adult: ${adult}`,
+      `children: ${children}`,
+      `country: ${value}`,
+      childrenAge
+    );
+    handleFetch();
+    // console.log(count);
+  };
+  const [count, setCount] = useState(0); // control useeffect
+  function handleFetch() {
+    // render search
+    setCount(count + 1);
+  }
   return (
     <>
       <InputDemo params={params} setParams={setParams} />
@@ -1332,7 +1332,8 @@ export function SearchFunction({
         setChildrenAge={setChildrenAge}
       />
       <SearchButton
-        // handleSubmit={handleSubmit}
+        handleSearch={handleSearch}
+        count={count}
         hotelData={hotelData}
         originalHotelData={originalHotelData}
         setOriginalHotelData={setOriginalHotelData}
@@ -1401,33 +1402,46 @@ export function SortFunction({ hotelData, originalHotelData, setHotelData }) {
 
 //WIP
 export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
-  function getAmenitiesList() {
-    const amenitiesList = [
-      ...new Set(
-        hotelData.properties.flatMap((property) => property.amenities)
-      ),
-    ];
-    const amenitiesCounts = [];
-    for (const e of amenitiesList) {
-      const countingAmenities = hotelData.properties.filter((property) =>
-        property.amenities.includes(e)
-      );
-      amenitiesCounts.push({ amenities: e, count: countingAmenities.length });
+  const [amenitiesCounts, setAmenitiesCounts] = useState([]);
+  useEffect(() => {
+    let emptyArray = [];
+    if (hotelData && hotelData.properties && !hotelData.error) {
+      const amenitiesList = [
+        ...new Set(
+          hotelData.properties.flatMap((property) => property.amenities)
+        ),
+      ];
+      console.log(amenitiesList);
+      for (const e of amenitiesList) {
+        const countingAmenities = hotelData.properties.filter((property) =>
+          property.amenities.includes(e)
+        );
+        emptyArray.push({ amenities: e, count: countingAmenities.length });
+      }
+      setAmenitiesCounts(emptyArray);
+
     }
-    console.log(amenitiesCounts);
-    function AmenitiesCheckBox() {
-      return (
-        <div className="flex items-center space-x-2">
-          <Checkbox />
-          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            {amenitiesCounts.amenities} ({amenitiesCounts.count})
-          </label>
-        </div>
-      );
-    }
-    amenitiesCounts.map(() => {
-      return <AmenitiesCheckBox />;
-    });
-  }
-  return <Button onClick={getAmenitiesList}>filter trial</Button>;
+  }, [hotelData]);
+  console.log(amenitiesCounts);
+  return (
+    <>
+    Filter Amenities
+      {amenitiesCounts.map(
+            (item) => (
+              <div
+                className="flex items-center space-x-2"
+                key={hotelData?.properties?.property_token}
+              >
+                <Checkbox />
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  {item.amenities} ({item.count})
+                </label>
+              </div>
+            )
+          )}
+          <Button>Clear</Button>
+          <Button>Submit</Button>
+    </>
+  );
 }
+//onClick={handleClear}
