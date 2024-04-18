@@ -928,10 +928,6 @@ const countriesList = [
     country_name: "United Arab Emirates",
   },
   {
-    country_code: "uk",
-    country_name: "United Kingdom",
-  },
-  {
     country_code: "gb",
     country_name: "United Kingdom",
   },
@@ -1264,7 +1260,7 @@ function SearchButton({
             children_ages: `${childrenAge}`,
             currency: "HKD",
             api_key:
-              "fae153abc369e2c25284c39de2b4241751818bab0c79ad3b0bdcaf2b5f8902a7",
+              "2d2ecee562168eaed5e57cf9d2f58199d52272e8fb527d44345321e2a8ae25e3",
           })
       );
       const result = await response.json();
@@ -1409,10 +1405,15 @@ export function SortFunction({ hotelData, originalHotelData, setHotelData }) {
   );
 }
 
-//WIP
+//completed
 export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
   const [amenitiesCounts, setAmenitiesCounts] = useState([]);
+  const [checkedState, setCheckedState] = useState(
+    [] // or  amenitiesList?.size
+  );
   useEffect(() => {
+    // async function generateFilter () {  
+    // }
     let emptyArray = [];
     if (hotelData && hotelData.properties && !hotelData.error) {
       const amenitiesList = [
@@ -1422,7 +1423,7 @@ export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
             .filter((a) => a !== undefined)
         ),
       ];
-      console.log(amenitiesList);
+      // console.log(amenitiesList);
       for (const e of amenitiesList) {
         const countingAmenities = hotelData.properties.filter((property) =>
           property.amenities.includes(e)
@@ -1430,26 +1431,79 @@ export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
         emptyArray.push({ amenities: e, count: countingAmenities.length });
       }
       setAmenitiesCounts(emptyArray);
+      setCheckedState(Array(amenitiesCounts?.length).fill(false));
     }
   }, [originalHotelData]);
-  console.log(amenitiesCounts);
+  // console.log(amenitiesCounts);
+  // console.log(checkedState);
+  const handleOnChange = (position, checkedState, setCheckedState) => {
+    // done
+    console.log(checkedState);
+    const updatedCheckedState = checkedState?.map((item, index) =>
+      index === position ? !item : item
+    );
+    setCheckedState(updatedCheckedState);
+    console.log(updatedCheckedState);
+  };
+  const unSelectAll = (checkedState, setCheckedState) => {
+    // done
+    console.log(checkedState);
+    const uncheckALL = checkedState?.map(() => false);
+    setCheckedState(uncheckALL);
+    console.log(uncheckALL);
+  };
+  const handleFilter = (amenitiesCounts, checkedState, hotelData) => {
+    //DONE
+    const tickedAmenities = amenitiesCounts
+      .map((e, i) => [e, checkedState[i]])
+      .filter((e) => e[1] === true)
+      .map((e) => e[0].amenities); // select all ticked amenities
+    console.log(tickedAmenities); // done
+    const filteredHotelData = hotelData?.properties.filter((e) =>
+      tickedAmenities.every((t) => e.amenities.includes(t))
+    ); // filter out every properties that doesn't have all ticked amenities in filtering array
+    const testingObject = Object.assign({ properties: [...filteredHotelData] });
+    setHotelData(testingObject);
+    console.log(testingObject);
+  };
   return (
-    <>
-      Filter Amenities
-      {amenitiesCounts.map((item) => (
-        <div
-          className="flex items-center space-x-2"
-          key={hotelData?.properties?.property_token}
-        >
-          <Checkbox />
-          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            {item.amenities} ({item.count})
-          </label>
-        </div>
-      ))}
-      <Button>Clear</Button>
-      <Button>Submit</Button>
-    </>
+    <div className="lg:mr-4">
+      <p className="lg:mt-2">Filter Amenities</p>
+      <div className="grid grid-cols-4 md:flex md:flex-col mb-2">
+        {amenitiesCounts.map((item, index) => (
+          <div
+            cclassName="flex  items-center space-x-2 text-gray-700"
+            key={index}
+          >
+            <div className="pt-1">
+              <Checkbox
+                checked={checkedState[index]}
+                onCheckedChange={() =>
+                  handleOnChange(index, checkedState, setCheckedState)
+                }
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {`${item?.amenities} (${item?.count})`}
+              </label>
+            </div>
+          </div>
+        ))}
+      </div>
+      <Button
+        className="m-1 ml-0"
+        onClick={() => unSelectAll(checkedState, setCheckedState)}
+      >
+        Clear
+      </Button>
+      <Button
+        className="m-1"
+        onClick={() => handleFilter(amenitiesCounts, checkedState, hotelData)}
+      >
+        Submit
+      </Button>
+    </div>
   );
 }
 //onClick={handleClear}
