@@ -1357,37 +1357,30 @@ export function SearchFunction({
 }
 //completed
 export function SortFunction({ hotelData, originalHotelData, setHotelData }) {
-  // props = {
-  //   hotelData :{},
-  //   originalHotelData: {}
-  // }
-
-  // const {hotelData, originalHotelData, setHotelData} = props;
-
   function handleRelevance() {
     setHotelData(originalHotelData);
     console.log(hotelData);
   }
-  function sortingPrice() {
-    console.log(hotelData);
-    console.log(hotelData.properties);
-    hotelData.properties.sort(function (a, b) {
-      if (a.rate_per_night.extracted_lowest < b.rate_per_night.extracted_lowest)
-        return -1;
-      if (a.rate_per_night.extracted_lowest > b.rate_per_night.extracted_lowest)
-        return 1;
-      return 0;
-    });
-    setHotelData(hotelData);
+  function sortingPrice(hotelData, setHotelData) {
+    const sortingList = [...hotelData?.properties];
+    console.log(sortingList);
+    sortingList.sort(
+      (a, b) =>
+        a.rate_per_night.extracted_lowest - b.rate_per_night.extracted_lowest
+    );
+    console.log(sortingList);
+    const testingObject = Object.assign({ properties: [...sortingList] });
+    setHotelData(testingObject);
+    console.log(testingObject);
   }
-  function sortingRating() {
-    console.log(hotelData.properties);
-    hotelData.properties.sort(function (a, b) {
-      if (a.overall_rating < b.overall_rating) return 1;
-      if (a.overall_rating > b.overall_rating) return -1;
-      return 0;
-    });
-    setHotelData(hotelData);
+  function sortingRating(hotelData, setHotelData) {
+    const sortingList = [...hotelData?.properties];
+    console.log(sortingList);
+    sortingList.sort((a, b) => b.overall_rating - a.overall_rating);
+    console.log(sortingList);
+    const testingObject = Object.assign({ properties: [...sortingList] });
+    setHotelData(testingObject);
+    console.log(testingObject);
   }
   // console.log(hotelData);
   return (
@@ -1409,10 +1402,10 @@ export function SortFunction({ hotelData, originalHotelData, setHotelData }) {
 export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
   const [amenitiesCounts, setAmenitiesCounts] = useState([]);
   const [checkedState, setCheckedState] = useState(
-    [] // or  amenitiesList?.size
+    Array(50).fill(false) // or  amenitiesList?.size
   );
   useEffect(() => {
-    // async function generateFilter () {  
+    // async function generateFilter () {
     // }
     let emptyArray = [];
     if (hotelData && hotelData.properties && !hotelData.error) {
@@ -1431,7 +1424,7 @@ export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
         emptyArray.push({ amenities: e, count: countingAmenities.length });
       }
       setAmenitiesCounts(emptyArray);
-      setCheckedState(Array(amenitiesCounts?.length).fill(false));
+      // setCheckedState(Array(amenitiesCounts?.length).fill(false));
     }
   }, [originalHotelData]);
   // console.log(amenitiesCounts);
@@ -1506,4 +1499,3 @@ export function FilterFunction({ hotelData, originalHotelData, setHotelData }) {
     </div>
   );
 }
-//onClick={handleClear}
